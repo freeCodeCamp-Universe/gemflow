@@ -1,0 +1,14 @@
+{
+  "name": "gemflow-workspace",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "pnpm --filter gemflow dev",
+    "build": "pnpm --filter gemflow build"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "6.3.5"
+    }
+  }
+}

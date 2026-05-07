@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build
+dist/
+*.local
+
+# Logs & debug
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Test & tooling caches
+coverage/
+.playwright-mcp/
+
+# Cursor / local agent assets (keep out of published repo)
+.agents/
+skills-lock.json
+
+# Root-level QA / iteration screenshots (large binaries, not app assets)
+/qa-*.png
+/pour-*.png
+/hud-layout-*.png
+/gem-pour-*.png
+/gem-main.png
