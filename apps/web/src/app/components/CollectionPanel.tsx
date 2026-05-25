@@ -17,7 +17,7 @@ export function CollectionPanel({ collection, isOpen, onClose }: CollectionPanel
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 z-40 bg-[rgba(10,10,35,0.84)] backdrop-blur-sm"
+            className="modal-scrim fixed inset-0 z-40 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -32,12 +32,12 @@ export function CollectionPanel({ collection, isOpen, onClose }: CollectionPanel
           >
             <div className="flex min-h-full items-center justify-center py-2 pointer-events-none">
               <motion.div
-                className="pointer-events-auto flex max-h-[min(88dvh,42rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.1rem] border border-border bg-card/96 p-3 shadow-[0_36px_120px_rgba(10,10,35,0.7)] backdrop-blur-xl sm:rounded-[1.4rem] sm:p-5"
+                className="modal-panel pointer-events-auto flex max-h-[min(88dvh,42rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.1rem] p-3 sm:rounded-[1.4rem] sm:p-5"
                 initial={{ scale: 0.96 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.97 }}
               >
-                <div className="mb-4 flex shrink-0 items-start justify-between gap-4 border-b border-white/10 pb-4">
+                <div className="panel-header-divider mb-4 flex shrink-0 items-start justify-between gap-4 pb-4">
                   <div className="font-mono text-sm tracking-[0.24em] text-primary">Collection</div>
 
                   <Button
@@ -45,7 +45,7 @@ export function CollectionPanel({ collection, isOpen, onClose }: CollectionPanel
                     variant="ghost"
                     size="icon"
                     onClick={onClose}
-                    className="border border-white/10 bg-background/35 text-muted-foreground hover:text-white"
+                    className="panel-close-btn"
                   >
                     <X className="h-5 w-5" />
                   </Button>
@@ -58,8 +58,9 @@ export function CollectionPanel({ collection, isOpen, onClose }: CollectionPanel
                     ))}
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-background/38 px-4 py-3 text-center text-sm text-muted-foreground sm:text-base">
-                    Total Collected Gems: <span className="text-white">{Object.values(collection).reduce((a, b) => a + b, 0)}</span>
+                  <div className="panel-inset rounded-2xl px-4 py-3 text-center text-sm text-muted-foreground sm:text-base">
+                    Total Collected Gems:{' '}
+                    <span className="text-foreground">{Object.values(collection).reduce((a, b) => a + b, 0)}</span>
                   </div>
                 </div>
               </motion.div>
@@ -74,14 +75,14 @@ export function CollectionPanel({ collection, isOpen, onClose }: CollectionPanel
 function GemCard({ gem, count }: { gem: GemType; count: number }) {
   return (
     <motion.div
-      className="relative rounded-2xl border border-white/10 bg-background/34 p-2.5 text-center sm:p-3"
+      className="panel-inset relative rounded-2xl p-2.5 text-center sm:p-3"
       whileHover={{ y: -2 }}
     >
       <div className="mb-2 flex justify-center sm:mb-3">
         <GemIcon gem={gem} size={42} animated={count > 0} glow={count > 0} className={count > 0 ? undefined : 'opacity-50'} />
       </div>
 
-      <div className="text-sm text-white sm:text-base">{gem}</div>
+      <div className="text-sm text-foreground sm:text-base">{gem}</div>
       <div className="mt-1 font-mono text-sm text-muted-foreground sm:text-base">{count}</div>
     </motion.div>
   );

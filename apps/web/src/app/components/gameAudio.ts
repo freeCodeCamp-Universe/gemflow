@@ -1,3 +1,5 @@
+import { readSoundEnabled, writeSoundEnabled } from '../utils/gamePreferences';
+
 type SuccessToneKind = 'synthesis' | 'level' | 'victory';
 
 export interface PourRustleHandle {
@@ -6,6 +8,24 @@ export interface PourRustleHandle {
 
 let audioContext: AudioContext | null = null;
 let noiseBuffer: AudioBuffer | null = null;
+let soundEnabled = readSoundEnabled();
+
+export function isSoundEnabled(): boolean {
+  return soundEnabled;
+}
+
+export function setSoundEnabled(enabled: boolean): void {
+  soundEnabled = enabled;
+  writeSoundEnabled(enabled);
+
+  if (enabled) {
+    void getAudioContext()?.resume().catch(() => undefined);
+  }
+}
+
+function canPlaySound(): boolean {
+  return soundEnabled;
+}
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -59,6 +79,8 @@ function scheduleGainEnvelope(
 }
 
 export function playPourRustle(layerCount: number): PourRustleHandle | null {
+  if (!canPlaySound()) return null;
+
   const context = getAudioContext();
   if (!context) return null;
 
@@ -124,6 +146,8 @@ export function playPourRustle(layerCount: number): PourRustleHandle | null {
 }
 
 export function playFailureTone(): void {
+  if (!canPlaySound()) return;
+
   const context = getAudioContext();
   if (!context) return;
 
@@ -142,6 +166,8 @@ export function playFailureTone(): void {
 }
 
 export function playSuccessTone(kind: SuccessToneKind): void {
+  if (!canPlaySound()) return;
+
   const context = getAudioContext();
   if (!context) return;
 

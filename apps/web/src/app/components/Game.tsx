@@ -1,8 +1,8 @@
 import {
   AlertTriangle,
-  Crown,
   HelpCircle,
   LayoutGrid,
+  Settings,
   Shuffle,
   Sparkles,
   Trophy,
@@ -34,8 +34,10 @@ import { LevelOverview } from './LevelOverview';
 import { PourAnimation } from './PourAnimation';
 import { SynthesisAnimation } from './SynthesisAnimation';
 import { Vial, type PowderRenderLayer } from './Vial';
-import { playFailureTone, playPourRustle, playSuccessTone, type PourRustleHandle } from './gameAudio';
+import { playFailureTone, playPourRustle, playSuccessTone, setSoundEnabled, type PourRustleHandle } from './gameAudio';
+import { SettingsPanel } from './SettingsPanel';
 import { Button } from './ui/button';
+import { readSoundEnabled, readTheme, writeTheme, type ThemeMode } from '../utils/gamePreferences';
 
 function formatLevelTargets(targets: Partial<Record<GemType, number>>): string {
   return Object.entries(targets)
@@ -124,15 +126,15 @@ function TargetGemTile({ gem, crafted, target }: { gem: GemType; crafted: number
     <div
       className={[
         'flex min-w-[4.8rem] items-center gap-1.5 rounded-full border px-2.25 py-0.5',
-        complete ? 'border-[var(--color-lab-success)]/30 bg-[var(--color-lab-success)]/10' : 'border-white/10 bg-white/[0.03]',
+        complete ? 'border-[var(--color-lab-success)]/30 bg-[var(--color-lab-success)]/10' : 'target-gem-tile',
       ].join(' ')}
       aria-label={`${gem} target ${crafted} of ${target}`}
     >
       <GemIcon gem={gem} size={18} animated={crafted > 0 && !complete} glow />
       <div className="min-w-0 flex-1 text-right">
-        <div className={['font-mono text-[0.82rem] leading-none sm:text-[0.9rem]', complete ? 'text-[var(--color-lab-success)]' : 'text-white'].join(' ')}>
+        <div className={['font-mono text-[0.82rem] leading-none sm:text-[0.9rem]', complete ? 'text-[var(--color-lab-success)]' : 'text-foreground'].join(' ')}>
           {crafted}
-          <span className="text-[0.68rem] text-white/35">/{target}</span>
+          <span className="text-[0.68rem] text-foreground-subtle">/{target}</span>
         </div>
         <div className="mt-[0.1rem] truncate font-mono text-[8px] tracking-[0.16em] text-muted-foreground sm:text-[9px]">{gem}</div>
       </div>
@@ -146,6 +148,9 @@ export function Game() {
   const [showCollection, setShowCollection] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showCampaignPanel, setShowCampaignPanel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [soundEnabled, setSoundEnabledState] = useState(() => readSoundEnabled());
+  const [theme, setTheme] = useState<ThemeMode>(() => readTheme());
   const [synthesizingVial, setSynthesizingVial] = useState<number | null>(null);
   const [synthesizedGem, setSynthesizedGem] = useState<GemType | null>(null);
   const [showLevelComplete, setShowLevelComplete] = useState(false);
@@ -669,37 +674,37 @@ export function Game() {
   };
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
+    <div className={[theme === 'dark' ? 'dark' : '', 'min-h-screen bg-background text-foreground'].filter(Boolean).join(' ')}>
       <div
         className={`relative isolate flex min-h-[100dvh] flex-col ${pouringAnimation ? 'overflow-visible' : 'overflow-hidden'}`}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(30,58,95,0.55),rgba(10,10,28,0.96)_45%,#050510_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(153,201,255,0.06),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(241,190,50,0.05),transparent_32%)]" />
-        <div className="absolute inset-0 opacity-[0.14] [background-image:repeating-radial-gradient(circle_at_50%_42%,transparent_0,transparent_38px,rgba(120,170,220,0.09)_38px,rgba(120,170,220,0.09)_39px)]" />
-        <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(59,59,79,0.22)_1px,transparent_1px),linear-gradient(90deg,rgba(59,59,79,0.18)_1px,transparent_1px)] [background-size:32px_32px]" />
+        <div className="game-backdrop-base absolute inset-0" />
+        <div className="game-backdrop-glow absolute inset-0" />
+        <div className="game-backdrop-dots absolute inset-0" />
+        <div className="game-backdrop-grid absolute inset-0" />
 
         <div className="relative z-20 px-2 pt-[max(0.35rem,env(safe-area-inset-top))] sm:px-5 sm:pt-[max(0.45rem,env(safe-area-inset-top))]">
           <div className="mx-auto flex w-full max-w-[90rem] flex-col">
             <div className="flex flex-wrap items-start justify-between gap-1 sm:gap-1.5">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 sm:gap-1.5">
-                <div className="flex items-center gap-1.5 rounded-full border border-white/8 bg-[rgba(8,12,32,0.3)] px-2 py-[0.24rem] backdrop-blur-sm sm:gap-2 sm:px-3 sm:py-[0.3rem]">
+                <div className="game-stat-chip flex items-center gap-1.5 rounded-full px-2 py-[0.24rem] sm:gap-2 sm:px-3 sm:py-[0.3rem]">
                   <div className="font-mono text-[0.62rem] tracking-[0.14em] text-muted-foreground sm:text-[0.75rem] sm:tracking-[0.18em]">Level</div>
-                  <div className="font-mono text-sm text-white sm:text-[0.95rem]">
+                  <div className="font-mono text-sm text-foreground sm:text-[0.95rem]">
                     <span className="text-primary">{String(gameState.level).padStart(2, '0')}</span>
-                    <span className="text-white/35"> /{GAME_MAX_LEVEL}</span>
+                    <span className="text-foreground-subtle"> /{GAME_MAX_LEVEL}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 rounded-full border border-white/8 bg-[rgba(8,12,32,0.3)] px-2 py-[0.24rem] backdrop-blur-sm sm:gap-2 sm:px-3 sm:py-[0.3rem]">
+                <div className="game-stat-chip flex items-center gap-1.5 rounded-full px-2 py-[0.24rem] sm:gap-2 sm:px-3 sm:py-[0.3rem]">
                   <div className="font-mono text-[0.62rem] tracking-[0.14em] text-muted-foreground sm:text-[0.75rem] sm:tracking-[0.18em]">Goal</div>
-                  <div className="font-mono text-sm text-white/90 sm:text-[0.95rem]">
+                  <div className="font-mono text-sm text-foreground-soft sm:text-[0.95rem]">
                     {synthesesThisLevel} / {goalTotal}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 rounded-full border border-white/8 bg-[rgba(8,12,32,0.3)] px-2 py-[0.24rem] backdrop-blur-sm sm:gap-2 sm:px-3 sm:py-[0.3rem]">
+                <div className="game-stat-chip flex items-center gap-1.5 rounded-full px-2 py-[0.24rem] sm:gap-2 sm:px-3 sm:py-[0.3rem]">
                   <div className="font-mono text-[0.62rem] tracking-[0.14em] text-muted-foreground sm:text-[0.75rem] sm:tracking-[0.18em]">Moves</div>
-                  <div className={['font-mono text-sm text-white/90 sm:text-[0.95rem]', deadEnd ? 'text-[var(--color-destructive)]' : ''].join(' ')}>
+                  <div className={['font-mono text-sm text-foreground-soft sm:text-[0.95rem]', deadEnd ? 'text-destructive' : ''].join(' ')}>
                     {gameState.moves}
                   </div>
                 </div>
@@ -721,7 +726,7 @@ export function Game() {
                 title="Level"
                 aria-label="Level"
                 onClick={() => setShowCampaignPanel(true)}
-                className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-full border border-white/12 bg-[rgba(8,12,32,0.45)] text-white/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-colors hover:border-white/25 hover:bg-white/[0.08] sm:h-10 sm:w-10"
+                className="game-icon-btn flex h-9 w-9 touch-manipulation items-center justify-center rounded-full sm:h-10 sm:w-10"
               >
                 <LayoutGrid className="h-[1.125rem] w-[1.125rem]" />
               </button>
@@ -730,7 +735,7 @@ export function Game() {
                 title="Rule"
                 aria-label="Rule"
                 onClick={() => setShowInstructions(true)}
-                className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-full border border-white/12 bg-[rgba(8,12,32,0.45)] text-white/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-colors hover:border-white/25 hover:bg-white/[0.08] sm:h-10 sm:w-10"
+                className="game-icon-btn flex h-9 w-9 touch-manipulation items-center justify-center rounded-full sm:h-10 sm:w-10"
               >
                 <HelpCircle className="h-[1.125rem] w-[1.125rem]" />
               </button>
@@ -739,14 +744,23 @@ export function Game() {
                 title="Collection"
                 aria-label="Collection"
                 onClick={() => setShowCollection(true)}
-                className="relative flex h-9 w-9 touch-manipulation items-center justify-center rounded-full border border-white/12 bg-[rgba(8,12,32,0.45)] text-white/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-colors hover:border-white/25 hover:bg-white/[0.08] sm:h-10 sm:w-10"
+                className="game-icon-btn relative flex h-9 w-9 touch-manipulation items-center justify-center rounded-full sm:h-10 sm:w-10"
               >
                 <Sparkles className="h-[1.125rem] w-[1.125rem]" />
                 {totalCollected > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full border border-white/15 bg-background/90 px-1 font-mono text-[10px] text-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full border border-border bg-card px-1 font-mono text-[10px] text-foreground">
                     {totalCollected > 99 ? '99+' : totalCollected}
                   </span>
                 )}
+              </button>
+                <button
+                type="button"
+                title="Settings"
+                aria-label="Settings"
+                onClick={() => setShowSettings(true)}
+                className="game-icon-btn flex h-9 w-9 touch-manipulation items-center justify-center rounded-full sm:h-10 sm:w-10"
+              >
+                <Settings className="h-[1.125rem] w-[1.125rem]" />
               </button>
             </div>
 
@@ -760,9 +774,9 @@ export function Game() {
           initial={false}
           animate={{ x: [0, -8, 8, -5, 5, 0] }}
           transition={{ duration: 0.34, ease: 'easeOut' }}
-          className="relative flex min-h-0 flex-1 flex-col border-white/5"
+          className="relative flex min-h-0 flex-1 flex-col border-border/30"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(245,246,247,0.04),transparent_42%),radial-gradient(circle_at_50%_100%,rgba(241,190,50,0.04),transparent_45%)]" />
+          <div className="game-board-glow absolute inset-0" />
           <div className="relative flex min-h-0 flex-1 flex-col px-2 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-1 sm:px-6 sm:pb-32 sm:pt-2 md:px-10">
             <div className="flex min-h-[min(50dvh,36rem)] flex-1 items-center justify-center sm:min-h-[min(58dvh,43rem)] xl:min-h-[min(62dvh,45rem)]">
               <div className="flex w-full max-w-[90rem] flex-wrap items-start justify-center gap-x-1.5 gap-y-4 min-[380px]:gap-x-2 min-[380px]:gap-y-5 sm:gap-x-5 sm:gap-y-8 md:gap-x-6 xl:gap-y-10">
@@ -830,13 +844,13 @@ export function Game() {
         </motion.div>
 
         <div className="pointer-events-none fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-0 right-0 z-20 flex justify-center px-2 sm:bottom-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-4">
-          <div className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-full border border-white/10 bg-[rgba(8,12,32,0.4)] p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-md sm:gap-2">
+          <div className="game-dock pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-full p-1.5 sm:gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={handleUndo}
               disabled={!hasUndoablePour || boardBusy}
-              className="touch-manipulation rounded-full border-white/12 bg-[rgba(14,18,40,0.75)] px-3 py-2 font-mono text-xs tracking-[0.12em] text-white/90 hover:bg-white/[0.08] sm:px-5 sm:py-2.5 sm:text-sm sm:tracking-[0.14em]"
+              className="game-dock-btn touch-manipulation rounded-full px-3 py-2 font-mono text-xs tracking-[0.12em] sm:px-5 sm:py-2.5 sm:text-sm sm:tracking-[0.14em]"
             >
               <Undo2 className="mr-1.5 h-4 w-4 sm:mr-2" />
               Undo
@@ -848,8 +862,8 @@ export function Game() {
               disabled={boardBusy}
               className={`touch-manipulation rounded-full px-3 py-2 font-mono text-xs tracking-[0.12em] sm:px-5 sm:py-2.5 sm:text-sm sm:tracking-[0.14em] ${
                 deadEnd
-                  ? 'bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] hover:bg-[var(--color-destructive)]/90'
-                  : 'border-white/12 bg-[rgba(14,18,40,0.75)] text-white/90 hover:bg-white/[0.08]'
+                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                  : 'game-dock-btn'
               }`}
             >
               <Shuffle className="mr-1.5 h-4 w-4 sm:mr-2" />
@@ -868,11 +882,26 @@ export function Game() {
 
       <GameInstructions isOpen={showInstructions} onClose={() => setShowInstructions(false)} />
 
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        soundEnabled={soundEnabled}
+        onSoundEnabledChange={(enabled) => {
+          setSoundEnabled(enabled);
+          setSoundEnabledState(enabled);
+        }}
+        theme={theme}
+        onThemeChange={(next) => {
+          setTheme(next);
+          writeTheme(next);
+        }}
+      />
+
       <AnimatePresence>
         {showCampaignPanel && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-[rgba(10,10,35,0.84)] backdrop-blur-sm"
+              className="modal-scrim fixed inset-0 z-40 backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -887,12 +916,12 @@ export function Game() {
             >
               <div className="flex min-h-full items-center justify-center py-2 pointer-events-none">
                 <motion.div
-                  className="pointer-events-auto flex max-h-[min(92dvh,52rem)] w-full max-w-4xl flex-col overflow-hidden rounded-[1.1rem] border border-border bg-card/96 p-3 shadow-[0_40px_120px_rgba(10,10,35,0.7)] backdrop-blur-xl sm:rounded-[1.4rem] sm:p-5"
+                  className="modal-panel pointer-events-auto flex max-h-[min(92dvh,52rem)] w-full max-w-4xl flex-col overflow-hidden rounded-[1.1rem] p-3 sm:rounded-[1.4rem] sm:p-5"
                   initial={{ scale: 0.96 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0.97 }}
                 >
-                  <div className="mb-4 flex shrink-0 items-start justify-between gap-4 border-b border-white/10 pb-4">
+                  <div className="panel-header-divider mb-4 flex shrink-0 items-start justify-between gap-4 pb-4">
                     <div className="font-mono text-sm tracking-[0.24em] text-primary">Level</div>
 
                     <Button
@@ -900,13 +929,13 @@ export function Game() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowCampaignPanel(false)}
-                      className="border border-white/10 bg-background/35 text-muted-foreground hover:text-white"
+                      className="panel-close-btn"
                     >
                       <X className="h-5 w-5" />
                     </Button>
                   </div>
 
-                  <div className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-white/10 bg-background/34 p-3 sm:p-4">
+                  <div className="panel-inset min-h-0 flex-1 overflow-y-auto rounded-2xl p-3 sm:p-4">
                     <LevelOverview
                       currentLevel={gameState.level}
                       highestCompletedLevel={gameState.highestCompletedLevel}
@@ -936,21 +965,19 @@ export function Game() {
           >
             <div
               className={[
-                'rounded-xl border px-4 py-4 shadow-[0_20px_60px_rgba(10,10,35,0.45)] backdrop-blur-xl',
-                flashMessage.kind === 'dead-end'
-                  ? 'border-[var(--color-destructive)]/40 bg-[rgba(10,10,35,0.92)]'
-                  : 'border-[var(--color-lab-warning)]/35 bg-[rgba(10,10,35,0.92)]',
+                'flash-toast rounded-xl px-4 py-4',
+                flashMessage.kind === 'dead-end' ? 'flash-toast--dead-end' : 'flash-toast--warning',
               ].join(' ')}
             >
               <div className="flex items-start gap-3">
                 <AlertTriangle
                   className={[
                     'mt-0.5 h-5 w-5',
-                    flashMessage.kind === 'dead-end' ? 'text-[var(--color-destructive)]' : 'text-primary',
+                    flashMessage.kind === 'dead-end' ? 'text-destructive' : 'text-primary',
                   ].join(' ')}
                 />
                 <div>
-                  <div className="text-lg text-white">{flashMessage.title}</div>
+                  <div className="text-lg text-foreground">{flashMessage.title}</div>
                   <div className="text-base text-muted-foreground">{flashMessage.detail}</div>
                 </div>
               </div>
@@ -985,13 +1012,13 @@ export function Game() {
       <AnimatePresence>
         {showLevelComplete && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,10,35,0.82)] px-3 py-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-4"
+            className="modal-scrim fixed inset-0 z-50 flex items-center justify-center px-3 py-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-full max-w-lg rounded-2xl border border-border bg-card/96 p-5 text-center shadow-[0_40px_120px_rgba(10,10,35,0.7)] sm:p-8"
+              className="modal-panel w-full max-w-lg rounded-2xl p-5 text-center sm:p-8"
               initial={{ opacity: 0, scale: 0.94, y: 18 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -999,7 +1026,7 @@ export function Game() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-primary/35 bg-primary/12 text-primary">
                 <Trophy className="h-8 w-8" />
               </div>
-              <h2 className="mt-3 text-3xl text-white sm:text-4xl">Level Cleared</h2>
+              <h2 className="mt-3 text-3xl text-foreground sm:text-4xl">Level Complete</h2>
               <Button type="button" onClick={handleNextLevel} className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90">
                 Next level
               </Button>
@@ -1011,33 +1038,23 @@ export function Game() {
       <AnimatePresence>
         {showGameVictory && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,10,35,0.84)] px-3 py-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-4"
+            className="modal-scrim fixed inset-0 z-50 flex items-center justify-center px-3 py-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-full max-w-xl rounded-2xl border border-border bg-card/96 p-5 text-center shadow-[0_40px_120px_rgba(10,10,35,0.7)] sm:p-8"
+              className="modal-panel w-full max-w-lg rounded-2xl p-5 text-center sm:p-8"
               initial={{ opacity: 0, scale: 0.94, y: 18 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 12 }}
             >
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-primary/35 bg-primary/12 text-primary">
-                <Crown className="h-8 w-8" />
+                <Trophy className="h-8 w-8" />
               </div>
-              <div className="font-mono text-sm tracking-[0.24em] text-primary">Campaign complete</div>
-              <h2 className="mt-3 text-3xl text-white sm:text-4xl">All 20 chambers stabilized.</h2>
-              <p className="mt-3 text-base text-muted-foreground">
-                The final level took {gameState.moves} moves, and your archive now holds {totalCollected} forged gems.
-              </p>
-              <div className="mt-6 rounded-xl border border-white/10 bg-background/40 p-4 text-left">
-                <div className="font-mono text-sm tracking-[0.2em] text-muted-foreground">Master band</div>
-                <div className="mt-2 text-lg text-white">
-                  Six live colors, full scramble depth, and the whole campaign unlocked for replay.
-                </div>
-              </div>
+              <h2 className="mt-3 text-3xl text-foreground sm:text-4xl">All Levels Complete</h2>
               <Button type="button" onClick={handlePlayAgain} className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                Play again from level 1
+                Play again
               </Button>
             </motion.div>
           </motion.div>

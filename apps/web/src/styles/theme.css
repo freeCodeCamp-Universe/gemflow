@@ -1,80 +1,153 @@
 @custom-variant dark (&:is(.dark *));
 
+/* Command-line Chic — light mode (:root) uses mirrored gray roles */
 :root {
   --font-size: 18px;
-  --background: #ffffff;
-  --foreground: #0a0a23;
-  --card: #f5f6f7;
-  --card-foreground: #0a0a23;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a23;
-  --primary: #4d3800;
-  --primary-foreground: #ffffff;
-  --secondary: #dfdfe2;
-  --secondary-foreground: #0a0a23;
-  --muted: #ececf0;
-  --muted-foreground: #5f5f6b;
-  --accent: #e9ebef;
-  --accent-foreground: #0a0a23;
+
+  --gray-00: #ffffff;
+  --gray-05: #f5f6f7;
+  --gray-10: #dfdfe2;
+  --gray-15: #d0d0d5;
+  --gray-45: #858591;
+  --gray-75: #3b3b4f;
+  --gray-80: #2a2a40;
+  --gray-85: #1b1b32;
+  --gray-90: #0a0a23;
+
+  --background: var(--gray-00);
+  --foreground: var(--gray-90);
+  --card: var(--gray-05);
+  --card-foreground: var(--gray-90);
+  --popover: var(--gray-00);
+  --popover-foreground: var(--gray-90);
+  --primary: #f1be32;
+  --primary-foreground: var(--gray-90);
+  --secondary: var(--gray-10);
+  --secondary-foreground: var(--gray-90);
+  --muted: var(--gray-10);
+  --muted-foreground: var(--gray-45);
+  --accent: var(--gray-15);
+  --accent-foreground: var(--gray-90);
   --destructive: #850000;
-  --destructive-foreground: #ffffff;
-  --border: rgba(10, 10, 35, 0.12);
+  --destructive-foreground: var(--gray-00);
+  --border: var(--gray-15);
   --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
+  --input-background: var(--gray-05);
+  --switch-background: var(--gray-15);
   --ring: #198eee;
   --lab-success: #00471b;
-  --lab-success-foreground: #ffffff;
+  --lab-success-foreground: var(--gray-00);
   --lab-info: #002ead;
-  --lab-info-foreground: #ffffff;
+  --lab-info-foreground: var(--gray-00);
   --lab-warning: #4d3800;
-  --lab-warning-foreground: #ffffff;
+  --lab-warning-foreground: var(--gray-00);
+
+  --foreground-subtle: color-mix(in srgb, var(--foreground) 35%, transparent);
+  --foreground-soft: color-mix(in srgb, var(--foreground) 72%, transparent);
+  --overlay: rgba(10, 10, 35, 0.85);
+  --surface-glass: color-mix(in srgb, var(--gray-00) 88%, transparent);
+  --surface-chip: color-mix(in srgb, var(--gray-05) 92%, transparent);
+  --surface-inset: color-mix(in srgb, var(--gray-10) 55%, var(--gray-00));
+  --surface-panel: color-mix(in srgb, var(--gray-05) 96%, transparent);
+  --shadow-elevated: 0 12px 40px rgba(10, 10, 35, 0.12);
+  --shadow-modal: 0 36px 120px rgba(10, 10, 35, 0.18);
+
+  --game-backdrop-base: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(153, 201, 255, 0.2),
+    rgba(245, 246, 247, 0.98) 45%,
+    var(--gray-00) 100%
+  );
+  --game-backdrop-glow: radial-gradient(circle at top, rgba(153, 201, 255, 0.14), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(241, 190, 50, 0.1), transparent 32%);
+  --game-backdrop-dots: repeating-radial-gradient(
+    circle at 50% 42%,
+    transparent 0,
+    transparent 38px,
+    rgba(208, 208, 213, 0.45) 38px,
+    rgba(208, 208, 213, 0.45) 39px
+  );
+  --game-backdrop-grid: linear-gradient(rgba(208, 208, 213, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(208, 208, 213, 0.38) 1px, transparent 1px);
+  --game-board-glow: radial-gradient(circle at 50% 38%, rgba(10, 10, 35, 0.04), transparent 42%),
+    radial-gradient(circle at 50% 100%, rgba(241, 190, 50, 0.06), transparent 45%);
+
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--gray-05);
+  --sidebar-foreground: var(--gray-90);
+  --sidebar-primary: var(--gray-90);
+  --sidebar-primary-foreground: var(--gray-00);
+  --sidebar-accent: var(--gray-10);
+  --sidebar-accent-foreground: var(--gray-90);
+  --sidebar-border: var(--gray-15);
+  --sidebar-ring: var(--gray-45);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
 }
 
 .dark {
-  --background: #0a0a23;
-  --foreground: #f5f6f7;
-  --card: #1b1b32;
-  --card-foreground: #f5f6f7;
-  --popover: #1b1b32;
-  --popover-foreground: #f5f6f7;
+  --background: var(--gray-90);
+  --foreground: var(--gray-05);
+  --card: var(--gray-85);
+  --card-foreground: var(--gray-05);
+  --popover: var(--gray-85);
+  --popover-foreground: var(--gray-05);
   --primary: #f1be32;
-  --primary-foreground: #0a0a23;
-  --secondary: #2a2a40;
-  --secondary-foreground: #f5f6f7;
-  --muted: #2a2a40;
-  --muted-foreground: #858591;
-  --accent: #3b3b4f;
-  --accent-foreground: #f5f6f7;
+  --primary-foreground: var(--gray-90);
+  --secondary: var(--gray-80);
+  --secondary-foreground: var(--gray-05);
+  --muted: var(--gray-80);
+  --muted-foreground: var(--gray-45);
+  --accent: var(--gray-75);
+  --accent-foreground: var(--gray-05);
   --destructive: #ffadad;
-  --destructive-foreground: #0a0a23;
-  --border: #3b3b4f;
-  --input: #2a2a40;
-  --ring: #198eee;
+  --destructive-foreground: var(--gray-90);
+  --border: var(--gray-75);
+  --input: var(--gray-80);
+  --input-background: var(--gray-80);
+  --switch-background: var(--gray-75);
   --lab-success: #acd157;
-  --lab-success-foreground: #0a0a23;
+  --lab-success-foreground: var(--gray-90);
   --lab-info: #99c9ff;
-  --lab-info-foreground: #0a0a23;
+  --lab-info-foreground: var(--gray-90);
   --lab-warning: #f1be32;
-  --lab-warning-foreground: #0a0a23;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
+  --lab-warning-foreground: var(--gray-90);
+
+  --foreground-subtle: color-mix(in srgb, var(--foreground) 35%, transparent);
+  --foreground-soft: color-mix(in srgb, var(--foreground) 88%, transparent);
+  --overlay: rgba(10, 10, 35, 0.85);
+  --surface-glass: color-mix(in srgb, var(--gray-90) 72%, transparent);
+  --surface-chip: color-mix(in srgb, var(--gray-90) 45%, transparent);
+  --surface-inset: color-mix(in srgb, var(--gray-85) 75%, transparent);
+  --surface-panel: color-mix(in srgb, var(--gray-85) 96%, transparent);
+  --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-modal: 0 36px 120px rgba(10, 10, 35, 0.7);
+
+  --game-backdrop-base: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(30, 58, 95, 0.55),
+    rgba(10, 10, 28, 0.96) 45%,
+    #050510 100%
+  );
+  --game-backdrop-glow: radial-gradient(circle at top, rgba(153, 201, 255, 0.06), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(241, 190, 50, 0.05), transparent 32%);
+  --game-backdrop-dots: repeating-radial-gradient(
+    circle at 50% 42%,
+    transparent 0,
+    transparent 38px,
+    rgba(120, 170, 220, 0.09) 38px,
+    rgba(120, 170, 220, 0.09) 39px
+  );
+  --game-backdrop-grid: linear-gradient(rgba(59, 59, 79, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 59, 79, 0.18) 1px, transparent 1px);
+  --game-board-glow: radial-gradient(circle at 50% 38%, rgba(245, 246, 247, 0.04), transparent 42%),
+    radial-gradient(circle at 50% 100%, rgba(241, 190, 50, 0.04), transparent 45%);
+
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -93,6 +166,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-foreground-soft: var(--foreground-soft);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -118,6 +193,11 @@
   --color-lab-info-foreground: var(--lab-info-foreground);
   --color-lab-warning: var(--lab-warning);
   --color-lab-warning-foreground: var(--lab-warning-foreground);
+  --color-overlay: var(--overlay);
+  --color-surface-glass: var(--surface-glass);
+  --color-surface-chip: var(--surface-chip);
+  --color-surface-inset: var(--surface-inset);
+  --color-surface-panel: var(--surface-panel);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -135,6 +215,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-modal: var(--shadow-modal);
 }
 
 @layer base {
@@ -145,11 +227,6 @@
   body {
     @apply bg-background text-foreground;
   }
-
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
 
   html {
     font-size: var(--font-size);

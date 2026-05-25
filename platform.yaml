@@ -1,0 +1,13 @@
+site: gemflow
+
+build:
+  command: pnpm run build
+  output: apps/web/dist
+
+deploy:
+  preview: true
+  ignore:
+    - "*.map"
+    - "node_modules/**"
+    - ".git/**"
+    - ".env*"

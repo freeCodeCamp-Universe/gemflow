@@ -26,7 +26,7 @@ export function SynthesisAnimation({ gem, onComplete }: SynthesisAnimationProps)
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="absolute inset-0 bg-[rgba(10,10,35,0.78)]"
+        className="modal-scrim absolute inset-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -76,13 +76,13 @@ export function SynthesisAnimation({ gem, onComplete }: SynthesisAnimationProps)
         />
 
         <motion.div
-          className="relative w-[20rem] overflow-hidden rounded-[1.6rem] border border-white/14 bg-[rgba(27,27,50,0.95)] px-7 py-7 shadow-[0_30px_100px_rgba(10,10,35,0.62)] backdrop-blur-xl"
+          className="modal-panel relative w-[20rem] overflow-hidden rounded-[1.6rem] px-7 py-7"
           style={{
-            boxShadow: `0 30px 100px rgba(10,10,35,0.62), inset 0 0 0 1px ${color}1f`,
+            boxShadow: `var(--shadow-modal), inset 0 0 0 1px ${color}1f`,
           }}
         >
-          <div className="absolute inset-x-6 top-5 h-px bg-white/10" />
-          <div className="absolute inset-x-6 bottom-5 h-px bg-white/10" />
+          <div className="absolute inset-x-6 top-5 h-px bg-border/80" />
+          <div className="absolute inset-x-6 bottom-5 h-px bg-border/80" />
 
           <div className="relative flex items-center gap-5">
             <motion.div
@@ -110,13 +110,13 @@ export function SynthesisAnimation({ gem, onComplete }: SynthesisAnimationProps)
                 <CheckCircle2 className="h-4 w-4" />
                 Synthesis Complete
               </div>
-              <div className="text-3xl leading-none text-white">{gem}</div>
+              <div className="text-3xl leading-none text-foreground">{gem}</div>
               <div className="whitespace-nowrap text-base text-muted-foreground">Added to Collection</div>
             </div>
           </div>
 
           <motion.div
-            className="mt-6 h-2 overflow-hidden rounded-full bg-white/6"
+            className="mt-6 h-2 overflow-hidden rounded-full bg-foreground/8"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22 }}
@@ -140,16 +140,16 @@ export function SynthesisAnimation({ gem, onComplete }: SynthesisAnimationProps)
             animate={{ opacity: [0, 1, 0] }}
             transition={{ duration: 0.22, delay: 0.45 }}
           >
-            <div className="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40" />
-            <div className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/30" />
-            <div className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" />
+            <div className="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border" />
+            <div className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/70" />
+            <div className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/50" />
           </motion.div>
         </motion.div>
 
         {shards.map((shard) => (
           <motion.div
             key={shard.id}
-            className="absolute h-3 w-2 rounded-[2px] border border-white/14"
+            className="absolute h-3 w-2 rounded-[2px] border border-border"
             style={{
               left: '50%',
               top: '50%',

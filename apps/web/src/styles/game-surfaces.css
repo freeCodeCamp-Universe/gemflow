@@ -1,0 +1,120 @@
+@layer components {
+  .game-backdrop-base {
+    background: var(--game-backdrop-base);
+  }
+
+  .game-backdrop-glow {
+    background: var(--game-backdrop-glow);
+  }
+
+  .game-backdrop-dots {
+    background-image: var(--game-backdrop-dots);
+    opacity: 0.14;
+  }
+
+  .game-backdrop-grid {
+    background-image: var(--game-backdrop-grid);
+    background-size: 32px 32px;
+    opacity: 0.2;
+  }
+
+  .dark .game-backdrop-dots {
+    opacity: 0.14;
+  }
+
+  .game-board-glow {
+    background: var(--game-board-glow);
+  }
+
+  .game-stat-chip {
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    background: var(--surface-chip);
+    backdrop-filter: blur(4px);
+  }
+
+  .game-icon-btn {
+    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+    background: var(--surface-glass);
+    color: var(--foreground-soft);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
+    backdrop-filter: blur(12px);
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .game-icon-btn:hover {
+    border-color: color-mix(in srgb, var(--border) 100%, transparent);
+    background: color-mix(in srgb, var(--accent) 35%, var(--surface-glass));
+    color: var(--foreground);
+  }
+
+  .game-dock {
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    background: var(--surface-glass);
+    box-shadow: var(--shadow-elevated);
+    backdrop-filter: blur(12px);
+  }
+
+  .game-dock-btn {
+    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+    background: var(--surface-inset);
+    color: var(--foreground-soft);
+  }
+
+  .game-dock-btn:hover {
+    background: color-mix(in srgb, var(--accent) 40%, var(--surface-inset));
+    color: var(--foreground);
+  }
+
+  .modal-scrim {
+    background: var(--overlay);
+  }
+
+  .modal-panel {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    box-shadow: var(--shadow-modal);
+    backdrop-filter: blur(24px);
+  }
+
+  .panel-header-divider {
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  }
+
+  .panel-inset {
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    background: color-mix(in srgb, var(--background) 36%, transparent);
+  }
+
+  .panel-close-btn {
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    background: color-mix(in srgb, var(--background) 35%, transparent);
+    color: var(--muted-foreground);
+  }
+
+  .panel-close-btn:hover {
+    color: var(--foreground);
+  }
+
+  .target-gem-tile {
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    background: color-mix(in srgb, var(--foreground) 3%, transparent);
+  }
+
+  .flash-toast {
+    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    box-shadow: var(--shadow-modal);
+    backdrop-filter: blur(24px);
+  }
+
+  .flash-toast--dead-end {
+    border-color: color-mix(in srgb, var(--destructive) 40%, transparent);
+  }
+
+  .flash-toast--warning {
+    border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+}
