@@ -31,6 +31,7 @@ import { CollectionPanel } from './CollectionPanel';
 import { GameInstructions } from './GameInstructions';
 import { GemIcon } from './GemIcon';
 import { LevelOverview } from './LevelOverview';
+import { CampaignMoveStats, LevelCompleteMoveStats } from './MoveStatsDisplay';
 import { PourAnimation } from './PourAnimation';
 import { SynthesisAnimation } from './SynthesisAnimation';
 import { Vial, type PowderRenderLayer } from './Vial';
@@ -38,6 +39,12 @@ import { playFailureTone, playPourRustle, playSuccessTone, setSoundEnabled, type
 import { SettingsPanel } from './SettingsPanel';
 import { Button } from './ui/button';
 import { readSoundEnabled, readTheme, writeTheme, type ThemeMode } from '../utils/gamePreferences';
+import {
+  createEmptyRunMoves,
+  readLevelBestMoves,
+  recordLevelBestMove,
+  type LevelMoveSlot,
+} from '../utils/levelMoveStats';
 
 function formatLevelTargets(targets: Partial<Record<GemType, number>>): string {
   return Object.entries(targets)
@@ -155,6 +162,16 @@ export function Game() {
   const [synthesizedGem, setSynthesizedGem] = useState<GemType | null>(null);
   const [showLevelComplete, setShowLevelComplete] = useState(false);
   const [showGameVictory, setShowGameVictory] = useState(false);
+  const [runLevelMoves, setRunLevelMoves] = useState<LevelMoveSlot[]>(() => createEmptyRunMoves());
+  const [levelBestMoves, setLevelBestMoves] = useState<LevelMoveSlot[]>(() => readLevelBestMoves());
+  const [lastCompletedStats, setLastCompletedStats] = useState<{
+    level: number;
+    moves: number;
+    best: number;
+    previousBest: number | null;
+    isNewBest: boolean;
+    hadPreviousBest: boolean;
+  } | null>(null);
   const [pouringAnimation, setPouringAnimation] = useState<{
     color: PowderColor;
     from: number;
@@ -292,8 +309,11 @@ export function Game() {
   }, []);
 
   useEffect(() => {
+    levelResolutionRef.current = false;
+  }, [gameState.level]);
+
+  useEffect(() => {
     if (!levelComplete) {
-      levelResolutionRef.current = false;
       return;
     }
 
@@ -309,10 +329,32 @@ export function Game() {
     if (levelResolutionRef.current) return;
 
     levelResolutionRef.current = true;
-    playSuccessTone(gameState.level >= GAME_MAX_LEVEL ? 'victory' : 'level');
+
+    const completedLevel = gameState.level;
+    const completedMoves = gameState.moves;
+    const bestResult = recordLevelBestMove(completedLevel, completedMoves);
+    const refreshedBests = readLevelBestMoves();
+    const storedBest = refreshedBests[completedLevel - 1] ?? completedMoves;
+
+    setRunLevelMoves((previous) => {
+      const next = [...previous];
+      next[completedLevel - 1] = completedMoves;
+      return next;
+    });
+    setLevelBestMoves(refreshedBests);
+    setLastCompletedStats({
+      level: completedLevel,
+      moves: completedMoves,
+      best: storedBest,
+      previousBest: bestResult.previousBest,
+      isNewBest: bestResult.isNewBest,
+      hadPreviousBest: bestResult.hadPreviousBest,
+    });
+
+    playSuccessTone(completedLevel >= GAME_MAX_LEVEL ? 'victory' : 'level');
 
     const timeoutId = window.setTimeout(() => {
-      if (gameState.level >= GAME_MAX_LEVEL) {
+      if (completedLevel >= GAME_MAX_LEVEL) {
         setShowGameVictory(true);
       } else {
         setShowLevelComplete(true);
@@ -320,7 +362,7 @@ export function Game() {
     }, 520);
 
     return () => window.clearTimeout(timeoutId);
-  }, [gameState.level, levelComplete, showGameVictory, showLevelComplete]);
+  }, [gameState.level, levelComplete, showGameVictory, showLevelComplete, gameState.moves]);
 
   useEffect(() => {
     if (pouringAnimation !== null) return;
@@ -630,9 +672,18 @@ export function Game() {
     setSelectedVial(null);
   };
 
+  const resetCampaignRun = () => {
+    setRunLevelMoves(createEmptyRunMoves());
+    setLastCompletedStats(null);
+  };
+
   const handleSelectLevel = (level: number) => {
     if (synthesisPending || pouringAnimation !== null) return;
     cancelPendingPour(true);
+    levelResolutionRef.current = false;
+    if (level === 1) {
+      resetCampaignRun();
+    }
     setGameState((previous) =>
       createGameStateForLevel(level, {
         preserveCollection: previous.collection,
@@ -647,6 +698,7 @@ export function Game() {
   };
 
   const handleNextLevel = () => {
+    levelResolutionRef.current = false;
     setGameState((previous) => {
       if (previous.level >= GAME_MAX_LEVEL) return previous;
 
@@ -660,6 +712,7 @@ export function Game() {
 
   const handlePlayAgain = () => {
     cancelPendingPour(true);
+    resetCampaignRun();
     setGameState((previous) =>
       createGameStateForLevel(1, {
         highestCompletedLevel: previous.highestCompletedLevel,
@@ -1027,6 +1080,16 @@ export function Game() {
                 <Trophy className="h-8 w-8" />
               </div>
               <h2 className="mt-3 text-3xl text-foreground sm:text-4xl">Level Complete</h2>
+              {lastCompletedStats && (
+                <LevelCompleteMoveStats
+                  level={lastCompletedStats.level}
+                  moves={lastCompletedStats.moves}
+                  best={lastCompletedStats.best}
+                  previousBest={lastCompletedStats.previousBest}
+                  isNewBest={lastCompletedStats.isNewBest}
+                  hadPreviousBest={lastCompletedStats.hadPreviousBest}
+                />
+              )}
               <Button type="button" onClick={handleNextLevel} className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90">
                 Next level
               </Button>
@@ -1044,7 +1107,7 @@ export function Game() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="modal-panel w-full max-w-lg rounded-2xl p-5 text-center sm:p-8"
+              className="modal-panel w-full max-w-2xl rounded-2xl p-5 text-center sm:p-8"
               initial={{ opacity: 0, scale: 0.94, y: 18 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -1053,8 +1116,9 @@ export function Game() {
                 <Trophy className="h-8 w-8" />
               </div>
               <h2 className="mt-3 text-3xl text-foreground sm:text-4xl">All Levels Complete</h2>
+              <CampaignMoveStats runMoves={runLevelMoves} bestMoves={levelBestMoves} />
               <Button type="button" onClick={handlePlayAgain} className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                Play again
+                Play Again
               </Button>
             </motion.div>
           </motion.div>

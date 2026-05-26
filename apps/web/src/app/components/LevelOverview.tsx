@@ -16,7 +16,7 @@ export function LevelOverview({
   currentLevelComplete,
   onSelectLevel,
 }: LevelOverviewProps) {
-  const highestUnlockedLevel = Math.min(maxLevel, Math.max(currentLevel, highestCompletedLevel + 1));
+  const highestUnlockedLevel = Math.min(maxLevel, highestCompletedLevel + 1);
 
   return (
     <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5 sm:gap-2">
